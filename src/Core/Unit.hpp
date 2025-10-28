@@ -33,7 +33,6 @@ namespace sw
 
 		virtual void setPosition(Position value);
 
-
 		template <typename TAbility, typename... ARGS>
 		void addAbility(ARGS&&... args)
 		{
@@ -56,9 +55,9 @@ namespace sw
 		[[nodiscard]] bool alive() const noexcept {return _alive;}
 		virtual void kill();
 	protected:
-		virtual void update();
+		virtual bool update();
 		virtual void processCommands();
-		virtual void processAbilities();
+		virtual bool processAbilities();
 
 		friend Game;
 		virtual void init(Game& game, BattleField& _battleField);
@@ -75,8 +74,9 @@ namespace sw
 		BattleField*  _battleField = nullptr;
 		bool _alive = false;
 	};
-
 	using UnitPtr = std::unique_ptr<Unit>;
+
+	struct DeadTag {};
 
 	class DoesUnitBlockCeilRule : public GameRule
 	{

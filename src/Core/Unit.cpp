@@ -3,11 +3,14 @@
 //
 
 #include "Unit.hpp"
+
 #include "Ability.hpp"
-#include "Game.hpp"
-#include "GameRule.hpp"
 #include "BattleField.hpp"
 #include "Command.hpp"
+#include "Game.hpp"
+#include "GameRule.hpp"
+#include "IO/Events/UnitDied.hpp"
+
 #include <IO/Events/UnitMoved.hpp>
 #include <algorithm>
 
@@ -50,10 +53,10 @@ void Unit::sortAbilities()
 	 });
 }
 
-void Unit::update()
+bool Unit::update()
 {
 	processCommands();
-	processAbilities();
+	return processAbilities();
 }
 
 void Unit::init(Game& game, BattleField& battleField)
@@ -76,15 +79,16 @@ void Unit::processCommands()
 	}
 }
 
-void Unit::processAbilities()
+bool Unit::processAbilities()
 {
 	for (const auto& ability : _abilities)
 	{
 		if (!alive() || ability->execute(*this))
 		{
-			return;
+			return true;
 		}
 	}
+	return false;
 }
 
 void Unit::setPosition(Position value)
@@ -97,7 +101,18 @@ void Unit::setPosition(Position value)
 	_position = value;
 }
 
-void Unit::kill() {}
+void Unit::kill()
+{
+	if (wasInit())
+	{
+		if (!hasComponent<DeadTag>())
+		{
+			addComponent<DeadTag>();
+			_game->eventSystem().post(io::UnitDied{ .unitId = _id });
+			_game->removeUnit(_id);
+		}
+	}
+}
 
 bool DoesUnitBlockCeilRule::tryExecute(bool& result, Unit& unit)
 {

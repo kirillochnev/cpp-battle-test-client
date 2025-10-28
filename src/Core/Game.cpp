@@ -57,8 +57,13 @@ void Game::init()
 
 }
 
-void Game::undate()
+bool Game::update()
 {
+	if (_units.size() < 2)
+	{
+		return false;
+	}
+
 	// Remove pending deletions before tick
 	if (!_toRemove.empty())
 	{
@@ -78,9 +83,13 @@ void Game::undate()
 	}
 
 	// Update over stable view; addUnit may append to _tickUnits for same-frame activation
+	bool wasAnyActions = false;
 	for (size_t i = 0; i < _tickUnits.size(); ++i)
 	{
-		_tickUnits[i]->update();
+		if (_tickUnits[i]->update())
+		{
+			wasAnyActions = true;
+		}
 	}
 
 	// Apply removals from this tick
@@ -96,6 +105,8 @@ void Game::undate()
 	_tickUnits.clear();
 	rebuildIndex();
 	++_frameIndex;
+
+	return wasAnyActions;
 }
 
 void Game::removeUnit(Id id)
@@ -121,3 +132,5 @@ void Game::rebuildIndex()
 		_idToIndex[_units[i]->id()] = i;
 	}
 }
+
+

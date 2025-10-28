@@ -25,8 +25,8 @@ namespace sw
 		kUnknown = 0,
 		kSelect,
 		kMeleeAttack,
-		kRangeAttach,
-		kAoeAttach,
+		kRangeAttack,
+		kAoeAttack,
 		kMovement,
 		kVisibility
 	};

@@ -14,8 +14,6 @@
 #include <IO/System/EventLog.hpp>
 #include <IO/System/PrintDebug.hpp>
 
-
-
 #include <Game/Abilities/MoveAbility.hpp>
 #include <Game/Commands/MarchCommand.hpp>
 #include <Game/Abilities/AttackAbility.hpp>
@@ -82,7 +80,7 @@ int main(int argc, char** argv)
 
 	EventLog eventLog;
 	auto printEvent = [&eventLog, &game](auto event){
-		eventLog.log(game.frameIndex(), std::move(event));
+		eventLog.log(game.frameIndex() + 1, std::move(event));
 	};
 
 	subs.push_back(game.eventSystem().subscribe<io::UnitSpawned>(printEvent));
@@ -91,10 +89,9 @@ int main(int argc, char** argv)
 	subs.push_back(game.eventSystem().subscribe<io::MarchStarted>(printEvent));
 	subs.push_back(game.eventSystem().subscribe<io::MarchEnded>(printEvent));
 	subs.push_back(game.eventSystem().subscribe<io::UnitAttacked>(printEvent));
+	subs.push_back(game.eventSystem().subscribe<io::UnitDied>(printEvent));
 
-	std::cout << "Commands:\n";
 	io::CommandParser parser;
-
 	auto handle = [&game](auto command){game.eventSystem().post(command);};
 	parser.add<io::CreateMap>(handle)
 		.add<io::SpawnSwordsman>(handle)
@@ -104,11 +101,10 @@ int main(int argc, char** argv)
 	parser.parse(file);
 
 
-	for (uint32_t i = 0 ; i < 10; ++i)
+	do
 	{
 		std::cout << "\n";
-		game.undate();
-	}
+	} while (game.update());
 
 	return 0;
 }

@@ -27,7 +27,7 @@ namespace sw
 		~Game();
 
 		void init();
-		void undate();
+		bool update();
 
 		// Index-based access during the current tick
 		size_t tickUnitCount() const noexcept { return _tickInProgress ? _tickUnits.size() : _units.size(); }

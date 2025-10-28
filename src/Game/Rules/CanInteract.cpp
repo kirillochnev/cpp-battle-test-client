@@ -9,14 +9,19 @@ using namespace sw;
 
 bool CanInteract::tryExecute(CanInteract::ResultType& out, const Unit& a, const Unit& b, InteractionType type)
 {
-	if ((type == InteractionType::kMeleeAttack || type == InteractionType::kRangeAttach) && a.id() == b.id())
+	const auto targetAttack = type == InteractionType::kMeleeAttack || type == InteractionType::kRangeAttack;
+	out = true;
+	if (targetAttack && a.id() == b.id())
 	{
 		// no self attack
 		out = false;
 	}
-	else
+
+	if ((targetAttack || type == InteractionType::kAoeAttack) && b.hasComponent<DeadTag>())
 	{
-		out = true;
+		// rest in piece, not in pieces
+		out = false;
 	}
+
 	return true;
 }

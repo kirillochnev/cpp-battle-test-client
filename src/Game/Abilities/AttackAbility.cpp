@@ -6,6 +6,7 @@
 #include <Core/Game.hpp>
 #include <Game/Rules/CanInteract.hpp>
 #include <Game/Rules/EvaluatePower.hpp>
+#include <Game/Rules/ApplyDamageRule.hpp>
 #include <Game/Rules/FindUnitsInRange.hpp>
 #include <Game/Rules/SelectTargetsRule.hpp>
 #include <IO/Events/UnitAttacked.hpp>
@@ -24,8 +25,9 @@ bool AttackAbility::applyAbility(Unit& self, std::vector<Unit*>&& targets, Real 
 	{
 		self.game()->eventSystem().post(io::UnitAttacked {
 			.attackerUnitId = self.id(), .targetUnitId = target->id(), .damage = (uint32_t)power,
-			.targetHp = (uint32_t)target->getAttribute(AttributeType::kHp)
+			.targetHp = (uint32_t)target->getAttribute(AttributeType::kHp) - power
 		});
+		self.game()->ruleBook().apply<ApplyDamageRule>(&self, *target, power);
 	}
 	return true;
 }
@@ -56,7 +58,7 @@ MeleeAttack::MeleeAttack(Real basePower):
 }
 
 RangeAttack::RangeAttack(Real basePower, std::map<AttributeType, Real> scales, Real min, Real max):
-	AttackAbility(InteractionType::kMeleeAttack, min, max, basePower, std::move(scales))
+	AttackAbility(InteractionType::kRangeAttack, min, max, basePower, std::move(scales))
 {
 
 }
