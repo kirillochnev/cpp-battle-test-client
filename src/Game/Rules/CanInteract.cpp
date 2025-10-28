@@ -17,7 +17,7 @@ bool CanInteract::tryExecute(CanInteract::ResultType& out, const Unit& a, const 
 		out = false;
 	}
 
-	if ((targetAttack || type == InteractionType::kAoeAttack) && b.hasComponent<DeadTag>())
+	if ((targetAttack || type == InteractionType::kAoeAttack) && !b.alive())
 	{
 		// rest in piece, not in pieces
 		out = false;

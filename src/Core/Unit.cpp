@@ -105,9 +105,9 @@ void Unit::kill()
 {
 	if (wasInit())
 	{
-		if (!hasComponent<DeadTag>())
+		if (alive())
 		{
-			addComponent<DeadTag>();
+			_alive = false;
 			_game->eventSystem().post(io::UnitDied{ .unitId = _id });
 			_game->removeUnit(_id);
 		}

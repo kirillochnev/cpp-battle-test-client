@@ -18,7 +18,7 @@ bool ModifyHpRule::tryExecute(Unit& unit, Real deltaHp)
 	}
 
     unit.setAttribute(AttributeType::kHp, newHp);
-	if (newHp == 0 && !unit.hasComponent<DeadTag>())
+	if (newHp == 0 && unit.alive())
 	{
 		// schedule death next tick and log
 		unit.kill();

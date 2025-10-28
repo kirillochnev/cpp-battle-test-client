@@ -76,8 +76,6 @@ namespace sw
 	};
 	using UnitPtr = std::unique_ptr<Unit>;
 
-	struct DeadTag {};
-
 	class DoesUnitBlockCeilRule : public GameRule
 	{
 	public:
