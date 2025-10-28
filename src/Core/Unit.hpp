@@ -6,6 +6,7 @@
 
 #include <Core/Types.hpp>
 #include <Core/GameRule.hpp>
+#include <Core/Position.hpp>
 #include <Core/ComponentOwner.hpp>
 #include <Core/AttributeOwner.hpp>
 
@@ -21,21 +22,20 @@ namespace sw
 	{
 	public:
 		Unit(Unit&&) = default;
-		explicit Unit(Id id, Point position);
+		explicit Unit (Id id, std::string type, Position position);
 
 		virtual ~Unit();
 
-		Point position() const
+		Position position() const
 		{
 			return _position;
 		}
 
-		virtual void setPosition(Point value);
+		virtual void setPosition(Position value);
 
-		virtual void update();
 
 		template <typename TAbility, typename... ARGS>
-		TAbility& addAbility(ARGS&&... args)
+		void addAbility(ARGS&&... args)
 		{
 			_abilities.emplace_back(std::make_unique<TAbility>(std::forward<ARGS>(args)...));
 			sortAbilities();
@@ -47,27 +47,33 @@ namespace sw
 			auto& ref = addCommand(std::make_unique<TCommand>(std::forward<ARGS>(args)...));
 			return static_cast<TCommand&>(ref);
 		}
-
+		[[nodiscard]] const std::string& type() const noexcept {return _type;}
 		[[nodiscard]] Id id() const noexcept {return _id;}
 		[[nodiscard]] bool wasInit() const noexcept {return _game && _battleField;}
 		[[nodiscard]] Game* game() const noexcept {return _game;}
 		[[nodiscard]] BattleField* battleField() const noexcept {return _battleField;}
+
+		[[nodiscard]] bool alive() const noexcept {return _alive;}
+		virtual void kill();
 	protected:
+		virtual void update();
 		virtual void processCommands();
 		virtual void processAbilities();
 
 		friend Game;
-		void init(Game& game, BattleField& _battleField);
+		virtual void init(Game& game, BattleField& _battleField);
 
 		virtual ICommand& addCommand(std::unique_ptr<ICommand>&& command);
 		void sortAbilities();
 
 		const Id _id;
-		Point _position;
+		std::string _type;
+		Position _position;
 		std::vector<std::unique_ptr<IAbility> > _abilities;
 		std::unique_ptr<ICommand> _commandToExecute;
 		Game* _game = nullptr;
 		BattleField*  _battleField = nullptr;
+		bool _alive = false;
 	};
 
 	using UnitPtr = std::unique_ptr<Unit>;
@@ -76,20 +82,28 @@ namespace sw
 	{
 	public:
 		using ResultType = bool;
-		virtual bool tryExecute(bool&, BattleField&, Unit& unit);
+		virtual bool tryExecute(bool&, Unit& unit);
 	};
 
 	class UnitPlaceRule : public GameRule
 	{
 	public:
 		using ResultType = void;
-		virtual bool tryExecute(BattleField&, Unit& unit, Point position);
+		virtual bool tryExecute(BattleField&, Unit& unit, Position position);
 	};
+
+	class UnitRemovedRule : public GameRule
+	{
+	public:
+		using ResultType = void;
+		virtual bool tryExecute(BattleField&, Unit& unit);
+	};
+
 	class UnitMovedRule : public GameRule
 	{
 	public:
 		using ResultType = void;
-		virtual bool tryExecute(BattleField&, Unit& unit, Point from, Point to);
+		virtual bool tryExecute(BattleField&, Unit& unit, Position from, Position to);
 	};
 
 }

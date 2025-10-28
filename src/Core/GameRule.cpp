@@ -12,3 +12,9 @@ void sw::RuleBook::sortRules()
  		return a->priority() > b->priority();
 	});
 }
+
+sw::RuleBook::RuleBook(sw::Game& game):
+	_game(game)
+{
+
+}

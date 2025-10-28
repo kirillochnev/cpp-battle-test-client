@@ -24,6 +24,14 @@ namespace sw
 			return std::any_cast<TComponent&>(it->second);
 		}
 
+		template <typename TComponent, typename... ARGS>
+		TComponent& addComponent(ARGS&&... args) {
+			static auto index = componentId<TComponent>();
+			auto& component = _components[index];
+			component = std::make_any<TComponent>(std::forward<ARGS>(args)...);
+			return std::any_cast<TComponent&>(component);
+		}
+
 		template <typename TComponent>
 		TComponent* getComponent()
 		{

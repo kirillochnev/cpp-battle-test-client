@@ -25,7 +25,13 @@ namespace sw
 
 	class RuleBook : Uncopiable
 	{
+		Game& _game;
+		std::vector<std::unique_ptr<GameRule> > _rules;
 	public:
+		explicit RuleBook(Game& game);
+
+		Game& owner() const noexcept {return _game;}
+
 		template <typename TRule, typename... ARGS>
 		auto apply(ARGS&&... args) const
 		{
@@ -42,7 +48,7 @@ namespace sw
 						}
 					}
 				}
-				TRule fallback;
+				static TRule fallback;
 				fallback._owner = this;
 				if (!fallback.tryExecute(std::forward<ARGS>(args)...))
 				{
@@ -62,7 +68,8 @@ namespace sw
 						}
 					}
 				}
-				TRule fallback;
+				static TRule fallback;
+				fallback._owner = this;
 				if (!fallback.tryExecute(result, std::forward<ARGS>(args)...))
 				{
 					throw std::runtime_error(std::string("Can not apply any rule of type: ") + typeid(TRule).name());
@@ -81,6 +88,5 @@ namespace sw
 	}
 	private:
 		void sortRules();
-		std::vector<std::unique_ptr<GameRule> > _rules;
 	};
 }

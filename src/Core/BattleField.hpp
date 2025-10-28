@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Core/Types.hpp>
+#include <Core/GameRule.hpp>
 #include <vector>
 
 namespace sw
@@ -20,9 +21,13 @@ namespace sw
 		[[nodiscard]] Real height() const noexcept;
 
 		[[nodiscard]] bool isCeilValid(Real x, Real y) const noexcept;
+		[[nodiscard]] bool isCeilAvailable(Real x, Real y) const noexcept;
 		void blockCeil(Real x, Real y);
 		void releaseCeil(Real x, Real y);
+
 	private:
 		[[nodiscard]] size_t ceilIndex(Real x, Real y) const noexcept;
 	};
+
+//	class Game
 }

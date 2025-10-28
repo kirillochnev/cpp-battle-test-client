@@ -7,27 +7,32 @@
 
 using namespace sw;
 
-void sw::ICommand::update()
+void sw::ICommand::update(Unit& owner)
 {
-	if (!isInProgress())
-	{
-		onStart();
-		_inProgress = true;
-	}
+	start(owner);
 
-	onUpdate();
+	onUpdate(owner);
 
 	if (!isInProgress())
 	{
-		onFinished();
+		onFinished(owner);
 	}
 }
 
-void sw::ICommand::terminate()
+void sw::ICommand::terminate(Unit& owner)
 {
 	if (isInProgress())
 	{
-		onTerminate();
+		onTerminate(owner);
 		_inProgress = false;
+	}
+}
+
+void ICommand::start(Unit& owner)
+{
+	if (!isInProgress())
+	{
+		onStart(owner);
+		_inProgress = true;
 	}
 }

@@ -1,6 +1,8 @@
 //
 // Created by kirill on 10/28/2025.
 //
+#pragma once
+
 
 #include <Core/Types.hpp>
 

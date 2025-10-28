@@ -50,3 +50,14 @@ size_t BattleField::ceilIndex(Real x, Real y) const noexcept
 {
 	return x + y * _width;
 }
+
+bool BattleField::isCeilAvailable(Real x, Real y) const noexcept
+{
+	if (!isCeilValid(x, y))
+	{
+		return false;
+	}
+	auto result = !_occupancy[ceilIndex(x, y)];
+	return result;
+}
+

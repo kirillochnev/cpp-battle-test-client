@@ -8,28 +8,38 @@
 #include "GameRule.hpp"
 #include "BattleField.hpp"
 #include "Command.hpp"
+#include <IO/Events/UnitMoved.hpp>
 #include <algorithm>
 
 using namespace sw;
 
 
-Unit::Unit(Id id, Point position) :
+Unit::Unit(Id id,std::string type, Position position) :
 		_id(id),
+		_type(type),
 		_position(position)
 {
 
 }
 
-Unit::~Unit() = default;
+Unit::~Unit()
+{
+	if (wasInit())
+	{
+		_battleField->releaseCeil(_position.x, _position.y);
+		_game->ruleBook().apply<UnitRemovedRule>(*_battleField, *this);
+	}
+}
 
 ICommand& Unit::addCommand(std::unique_ptr<ICommand>&& command)
 {
 
 	if (_commandToExecute && _commandToExecute->isInProgress())
 	{
-		_commandToExecute->terminate();
+		_commandToExecute->terminate(*this);
 	}
 	_commandToExecute = std::move(command);
+	_commandToExecute->start(*this);
 	return *_commandToExecute;
 }
 
@@ -50,6 +60,7 @@ void Unit::init(Game& game, BattleField& battleField)
 {
 	_game = &game;
 	_battleField = &battleField;
+	_alive = true;
 	game.ruleBook().apply<UnitPlaceRule>(battleField, *this, _position);
 }
 
@@ -57,7 +68,7 @@ void Unit::processCommands()
 {
 	if (_commandToExecute)
 	{
-		_commandToExecute->update();
+		_commandToExecute->update(*this);
 		if (!_commandToExecute->isInProgress())
 		{
 			_commandToExecute.reset();
@@ -69,43 +80,55 @@ void Unit::processAbilities()
 {
 	for (const auto& ability : _abilities)
 	{
-		if (ability->execute(*this))
+		if (!alive() || ability->execute(*this))
 		{
 			return;
 		}
 	}
 }
 
-void Unit::setPosition(Point value)
+void Unit::setPosition(Position value)
 {
 	if (_game && _battleField)
 	{
 		_game->ruleBook().apply<UnitMovedRule>(*_battleField, *this, _position, value);
+		_game->eventSystem().post(io::UnitMoved{.unitId = _id, .x = (uint32_t)value.x, .y = (uint32_t)value.y});
 	}
 	_position = value;
 }
 
-bool DoesUnitBlockCeilRule::tryExecute(bool& result, BattleField&, Unit& unit)
+void Unit::kill() {}
+
+bool DoesUnitBlockCeilRule::tryExecute(bool& result, Unit& unit)
 {
 	result = true;
 	return true;
 }
 
-bool UnitPlaceRule::tryExecute(BattleField& battleField, Unit& unit, Point position)
+bool UnitPlaceRule::tryExecute(BattleField& battleField, Unit& unit, Position position)
 {
-	if (owner().apply<DoesUnitBlockCeilRule>(battleField, unit))
+	if (owner().apply<DoesUnitBlockCeilRule>(unit))
 	{
 		battleField.blockCeil(position.x, position.y);
 	}
 	return true;
 }
 
-bool UnitMovedRule::tryExecute(BattleField& battleField, Unit& unit, Point from, Point to)
+bool UnitMovedRule::tryExecute(BattleField& battleField, Unit& unit, Position from, Position to)
 {
-	if (owner().apply<DoesUnitBlockCeilRule>(battleField, unit))
+	if (owner().apply<DoesUnitBlockCeilRule>(unit))
 	{
 		battleField.releaseCeil(from.x, from.y);
 		battleField.blockCeil(to.x, to.y);
+	}
+	return true;
+}
+
+bool UnitRemovedRule::tryExecute(BattleField& battleField, Unit& unit)
+{
+	if (owner().apply<DoesUnitBlockCeilRule>(unit))
+	{
+		battleField.releaseCeil(unit.position().x, unit.position().y);
 	}
 	return true;
 }

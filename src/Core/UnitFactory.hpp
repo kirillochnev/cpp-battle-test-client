@@ -40,7 +40,7 @@ namespace sw
 			return true;
 		}
 
-		UnitPtr allocateUnit(const std::string& kind, const std::any& data);
+		Unit* allocateUnit(const std::string& kind, const std::any& data);
 	private:
 		void onError(const std::string& unitKind, const std::any& data, const std::string_view& reason) const;
 

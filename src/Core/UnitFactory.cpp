@@ -3,6 +3,8 @@
 //
 
 #include "UnitFactory.hpp"
+#include <IO/Events/UnitSpawned.hpp>
+#include "Game.hpp"
 #include <stdexcept>
 
 using namespace sw;
@@ -36,21 +38,20 @@ void UnitFactory::onError(const std::string& unitKind, const std::any& data, con
 	throw std::runtime_error("Can not allocate unit kind: [" + unitKind + "], reason: " + std::string(reason));
 }
 
-UnitPtr UnitFactory::allocateUnit(const std::string& kind, const std::any& data)
+Unit* UnitFactory::allocateUnit(const std::string& kind, const std::any& data)
 {
-	UnitPtr result;
 	auto it = _allocators.find(kind);
 	if (it == _allocators.end())
 	{
 		onError(kind, data, "Can not find allocator");
-		return result;
+		return nullptr;
 	}
-
-	result = it->second(_game, data);
-	if (result == nullptr)
+	UnitPtr unit = it->second(_game, data);
+	if (unit == nullptr)
 	{
 		onError(kind, data, "Factory returned nullptr");
+		return nullptr;
 	}
 
-	return result;
+	return _game.addUnit(std::move(unit));
 }
