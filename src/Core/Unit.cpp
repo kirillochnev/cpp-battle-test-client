@@ -16,7 +16,6 @@
 
 using namespace sw;
 
-
 Unit::Unit(Id id,std::string type, Position position) :
 		_id(id),
 		_type(type),
@@ -145,5 +144,11 @@ bool UnitRemovedRule::tryExecute(BattleField& battleField, Unit& unit)
 	{
 		battleField.releaseCeil(unit.position().x, unit.position().y);
 	}
+	return true;
+}
+
+bool UnitsActInFrameOfCreation::tryExecute(UnitsActInFrameOfCreation::ResultType& out)
+{
+	out = false;
 	return true;
 }

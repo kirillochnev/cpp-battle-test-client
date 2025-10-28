@@ -104,4 +104,10 @@ namespace sw
 		virtual bool tryExecute(BattleField&, Unit& unit, Position from, Position to);
 	};
 
+	class UnitsActInFrameOfCreation : public GameRule
+	{
+	public:
+		using ResultType = bool;
+		virtual bool tryExecute(ResultType& out);
+	};
 }

@@ -9,6 +9,8 @@
 
 using namespace sw;
 
+struct SkipTurnTag {};
+
 Game::Game():
 		_ruleBook(*this),
 		_unitFactory(*this)
@@ -49,6 +51,11 @@ Unit* Game::addUnit(UnitPtr&& unit)
 	}
 
 	rebuildIndex();
+
+	if (!_ruleBook.apply<UnitsActInFrameOfCreation>())
+	{
+		ptr->addComponent<SkipTurnTag>();
+	}
 	return ptr;
 }
 
@@ -86,6 +93,13 @@ bool Game::update()
 	bool wasAnyActions = false;
 	for (size_t i = 0; i < _tickUnits.size(); ++i)
 	{
+		if (_tickUnits[i]->hasComponent<SkipTurnTag>())
+		{
+			wasAnyActions = true;
+			_tickUnits[i]->remove<SkipTurnTag>();
+			continue;
+		}
+
 		if (_tickUnits[i]->update())
 		{
 			wasAnyActions = true;
