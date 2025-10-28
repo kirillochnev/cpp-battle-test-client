@@ -28,14 +28,11 @@ namespace sw
 		void unsubscribe(SubId id) noexcept;
 
 		template <typename TEvent, typename THandle>
-		Subscription subscribe(THandle&& handle, SubId* out = nullptr)
+		SubId subscribe(THandle&& handle, SubId* out = nullptr)
 		{
 			static const auto type = std::type_index(typeid(TEvent));
 			auto id = genNextId();
 
-			const auto deleter = [id, this](auto){
-				unsubscribe(id);
-			};
 			if (out != nullptr)
 			{
 				*out = id;
@@ -44,6 +41,14 @@ namespace sw
 				handle(std::any_cast<const TEvent&>(event));
 			};
 			_subs[type].emplace_back(id, std::move(commonHandle));
+			return id;
+		}
+
+		Subscription makeAutoUnsubscribe(SubId id)
+		{
+			const auto deleter = [id, this](auto){
+				unsubscribe(id);
+			};
 			return Subscription(nullptr, deleter);
 		}
 

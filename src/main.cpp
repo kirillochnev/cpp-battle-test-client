@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
 	game.init();
 
-	game.unitFactory().registerUnitKind("swordsman", [](Game&, io::SpawnSwordsman event){
+	game.unitFactory().registerUnitKind("Swordsman", [](Game&, io::SpawnSwordsman event){
 		auto unit = std::make_unique<Unit>(event.unitId,"swordsman", Position{(Real)event.x, (Real)event.y});
 		unit->setAttribute(AttributeType::kStr, event.strength);
 		unit->setAttribute(AttributeType::kHp, event.hp);
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	  return std::move(unit);
 	});
 
-	game.unitFactory().registerUnitKind("hunter", [](Game&, io::SpawnHunter event){
+	game.unitFactory().registerUnitKind("Hunter", [](Game&, io::SpawnHunter event){
 		auto unit = std::make_unique<Unit>(event.unitId, "hunter", Position{(Real)event.x, (Real)event.y});
 		unit->setAttribute(AttributeType::kStr, event.strength);
 		unit->setAttribute(AttributeType::kAgl, event.agility);
@@ -62,20 +62,20 @@ int main(int argc, char** argv)
 	});
 
 
-	std::vector<Subscription > subs;
-	subs.push_back(game.eventSystem().subscribe<io::CreateMap>([&game](const io::CreateMap& event){
-		game.createBattleField(event.width, event.height);
-	}));
-	subs.push_back(game.eventSystem().subscribe<io::SpawnSwordsman>([&game](const io::SpawnSwordsman& event){
-		game.unitFactory().allocateUnit("swordsman", event);
-	}));
-	subs.push_back(game.eventSystem().subscribe<io::SpawnHunter>([&game](const io::SpawnHunter& event){
-		game.unitFactory().allocateUnit("hunter", event);
-	}));
 
-	subs.push_back(game.eventSystem().subscribe<io::March>([&game](const io::March& event){
+	game.eventSystem().subscribe<io::CreateMap>([&game](const io::CreateMap& event){
+		game.createBattleField(event.width, event.height);
+	});
+	game.eventSystem().subscribe<io::SpawnSwordsman>([&game](const io::SpawnSwordsman& event){
+		game.unitFactory().allocateUnit("Swordsman", event);
+	});
+	game.eventSystem().subscribe<io::SpawnHunter>([&game](const io::SpawnHunter& event){
+		game.unitFactory().allocateUnit("Hunter", event);
+	});
+
+	game.eventSystem().subscribe<io::March>([&game](const io::March& event){
 		game.findUnit(event.unitId)->addCommand<MarchCommand>(event.targetX, event.targetY);
-	}));
+	});
 
 
 	EventLog eventLog;
@@ -83,13 +83,13 @@ int main(int argc, char** argv)
 		eventLog.log(game.frameIndex() + 1, std::move(event));
 	};
 
-	subs.push_back(game.eventSystem().subscribe<io::UnitSpawned>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::MapCreated>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::UnitMoved>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::MarchStarted>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::MarchEnded>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::UnitAttacked>(printEvent));
-	subs.push_back(game.eventSystem().subscribe<io::UnitDied>(printEvent));
+	game.eventSystem().subscribe<io::UnitSpawned>(printEvent);
+	game.eventSystem().subscribe<io::MapCreated>(printEvent);
+	game.eventSystem().subscribe<io::UnitMoved>(printEvent);
+	game.eventSystem().subscribe<io::MarchStarted>(printEvent);
+	game.eventSystem().subscribe<io::MarchEnded>(printEvent);
+	game.eventSystem().subscribe<io::UnitAttacked>(printEvent);
+	game.eventSystem().subscribe<io::UnitDied>(printEvent);
 
 	io::CommandParser parser;
 	auto handle = [&game](auto command){game.eventSystem().post(command);};
