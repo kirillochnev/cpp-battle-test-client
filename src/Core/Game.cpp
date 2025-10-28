@@ -7,9 +7,13 @@
 #include "IO/Events/UnitSpawned.hpp"
 #include <IO/Events/MapCreated.hpp>
 
+#include <vector>
+#include <algorithm>
+
 using namespace sw;
 
 struct SkipTurnTag {};
+
 
 Game::Game():
 		_ruleBook(*this),
@@ -61,7 +65,9 @@ Unit* Game::addUnit(UnitPtr&& unit)
 
 void Game::init()
 {
-
+	AutoRegistrator::forEach([this](auto& registrator){
+		registrator.registerIn(*this);
+	});
 }
 
 bool Game::update()
@@ -147,4 +153,35 @@ void Game::rebuildIndex()
 	}
 }
 
+static auto& registrators()
+{
+	static std::vector<AutoRegistrator*> result;
+	return result;
+}
 
+AutoRegistrator::AutoRegistrator()
+{
+	auto& arr = registrators();
+	auto it = std::find_if(arr.begin(), arr.end(), [this](auto oth){return oth == this;});
+	if (it == arr.end())
+	{
+		arr.emplace_back(this);
+	}
+}
+
+AutoRegistrator::~AutoRegistrator()
+{
+	erase_if(registrators(), [this](auto oth) {return oth == this;});
+}
+
+void AutoRegistrator::forEach(const std::function<void(AutoRegistrator&)>& callback)
+{
+	if (!callback)
+	{
+		return;
+	}
+	for (auto reg : registrators())
+	{
+		callback(*reg);
+	}
+}

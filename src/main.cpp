@@ -16,11 +16,50 @@
 
 #include <Game/Abilities/MoveAbility.hpp>
 #include <Game/Commands/MarchCommand.hpp>
-#include <Game/Abilities/AttackAbility.hpp>
 #include <Core/Game.hpp>
 #include <fstream>
 #include <iostream>
 
+
+
+void addEventPrinter(sw::Game& game)
+{
+	using namespace sw;
+
+	auto printEvent = [&game](auto event){
+		EventLog eventLog;
+		eventLog.log(game.frameIndex() + 1, std::move(event));
+	};
+
+	game.eventSystem().subscribe<io::UnitSpawned>(printEvent);
+	game.eventSystem().subscribe<io::MapCreated>(printEvent);
+	game.eventSystem().subscribe<io::UnitMoved>(printEvent);
+	game.eventSystem().subscribe<io::MarchStarted>(printEvent);
+	game.eventSystem().subscribe<io::MarchEnded>(printEvent);
+	game.eventSystem().subscribe<io::UnitAttacked>(printEvent);
+	game.eventSystem().subscribe<io::UnitDied>(printEvent);
+}
+
+void registerCommonCommands(sw::Game& game)
+{
+	using namespace sw;
+
+	game.eventSystem().subscribe<io::CreateMap>([&game](const io::CreateMap& event) {
+		game.createBattleField(event.width, event.height);
+	});
+
+	game.eventSystem().subscribe<io::March>([&game](const io::March& event){
+		game.findUnit(event.unitId)->addCommand<MarchCommand>(event.targetX, event.targetY);
+	});
+}
+
+void configureGame(sw::Game& game)
+{
+	// We may register units/rules directly here< or use AutoRegistrator
+	using namespace sw;
+	registerCommonCommands(game);
+	addEventPrinter(game);
+}
 
 int main(int argc, char** argv)
 {
@@ -37,68 +76,19 @@ int main(int argc, char** argv)
 		throw std::runtime_error("Error: File not found - " + std::string(argv[1]));
 	}
 
-	Game game;
 
+	Game game;
+	configureGame(game);
 	game.init();
 
-	game.unitFactory().registerUnitKind("Swordsman", [](Game&, io::SpawnSwordsman event){
-		auto unit = std::make_unique<Unit>(event.unitId,"swordsman", Position{(Real)event.x, (Real)event.y});
-		unit->setAttribute(AttributeType::kStr, event.strength);
-		unit->setAttribute(AttributeType::kHp, event.hp);
-		unit->addAbility<MeleeAttack>(AttributeType::kStr);
-	  	unit->addAbility<MoveAbility>();
-	  return std::move(unit);
-	});
-
-	game.unitFactory().registerUnitKind("Hunter", [](Game&, io::SpawnHunter event){
-		auto unit = std::make_unique<Unit>(event.unitId, "hunter", Position{(Real)event.x, (Real)event.y});
-		unit->setAttribute(AttributeType::kStr, event.strength);
-		unit->setAttribute(AttributeType::kAgl, event.agility);
-		unit->setAttribute(AttributeType::kHp, event.hp);
-		unit->addAbility<MeleeAttack>(AttributeType::kStr);
-		unit->addAbility<RangeAttack>(AttributeType::kAgl, 2, event.range);
-		unit->addAbility<MoveAbility>();
-		return std::move(unit);
-	});
 
 
-
-	game.eventSystem().subscribe<io::CreateMap>([&game](const io::CreateMap& event){
-		game.createBattleField(event.width, event.height);
-	});
-	game.eventSystem().subscribe<io::SpawnSwordsman>([&game](const io::SpawnSwordsman& event){
-		game.unitFactory().allocateUnit("Swordsman", event);
-	});
-	game.eventSystem().subscribe<io::SpawnHunter>([&game](const io::SpawnHunter& event){
-		game.unitFactory().allocateUnit("Hunter", event);
-	});
-
-	game.eventSystem().subscribe<io::March>([&game](const io::March& event){
-		game.findUnit(event.unitId)->addCommand<MarchCommand>(event.targetX, event.targetY);
-	});
-
-
-	EventLog eventLog;
-	auto printEvent = [&eventLog, &game](auto event){
-		eventLog.log(game.frameIndex() + 1, std::move(event));
-	};
-
-	game.eventSystem().subscribe<io::UnitSpawned>(printEvent);
-	game.eventSystem().subscribe<io::MapCreated>(printEvent);
-	game.eventSystem().subscribe<io::UnitMoved>(printEvent);
-	game.eventSystem().subscribe<io::MarchStarted>(printEvent);
-	game.eventSystem().subscribe<io::MarchEnded>(printEvent);
-	game.eventSystem().subscribe<io::UnitAttacked>(printEvent);
-	game.eventSystem().subscribe<io::UnitDied>(printEvent);
-
-	io::CommandParser parser;
 	auto handle = [&game](auto command){game.eventSystem().post(command);};
-	parser.add<io::CreateMap>(handle)
-		.add<io::SpawnSwordsman>(handle)
-		.add<io::SpawnHunter>(handle)
+	game.parser()
+		.add<io::CreateMap>(handle)
 		.add<io::March>(handle);
 
-	parser.parse(file);
+	game.parser().parse(file);
 
 
 	do

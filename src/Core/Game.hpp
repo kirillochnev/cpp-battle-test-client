@@ -2,11 +2,12 @@
 // Created by kirill on 10/28/2025.
 //
 
-#include <Core/Types.hpp>
-#include <Core/GameRule.hpp>
-#include <Core/EventSystem.hpp>
-#include <Core/UnitFactory.hpp>
+#include "IO/System/CommandParser.hpp"
 #include <Core/BattleField.hpp>
+#include <Core/EventSystem.hpp>
+#include <Core/GameRule.hpp>
+#include <Core/Types.hpp>
+#include <Core/UnitFactory.hpp>
 
 namespace sw
 {
@@ -22,6 +23,7 @@ namespace sw
 		std::unordered_map<Id, size_t> _idToIndex;
 		bool _tickInProgress = false;
 		std::vector<Unit*> _tickUnits; // stable indexable view for current tick
+		io::CommandParser _parser;
 	public:
 		Game();
 		~Game();
@@ -57,8 +59,23 @@ namespace sw
 		Unit* findUnit(Id id) const noexcept;
 		void removeUnit(Id id);
 
+		io::CommandParser& parser() noexcept {return _parser;}
+		const io::CommandParser& parser() const noexcept {return _parser;}
 private:
 		void rebuildIndex();
 
 	};
+
+
+	class AutoRegistrator
+	{
+	public:
+		AutoRegistrator();
+		virtual ~AutoRegistrator();
+		virtual std::string name() const noexcept = 0;
+		virtual void registerIn(Game& ) = 0;
+
+		static void forEach(const std::function<void (AutoRegistrator&)>& callback);
+	};
+
 }
