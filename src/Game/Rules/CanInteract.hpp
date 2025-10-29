@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 
 namespace sw
@@ -12,7 +13,7 @@ namespace sw
 	{
 	public:
 		using ResultType = bool;
-		bool tryExecute(ResultType& out, const Unit& a, const Unit& b, InteractionType type);
+		bool tryExecute(ResultType& out, Unit a, Unit b, InteractionType type);
 	};
 
 }

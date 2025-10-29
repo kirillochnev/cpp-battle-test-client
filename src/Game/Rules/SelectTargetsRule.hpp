@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 
 namespace sw
@@ -12,7 +13,7 @@ namespace sw
 	class SelectTargetsRule : public GameRule
 	{
 	public:
-		using ResultType = std::vector<Unit*>;
-		virtual bool tryExecute(ResultType& out, Unit& unit, const ResultType& candidates, InteractionType type);
+		using ResultType = std::vector<Unit>;
+		virtual bool tryExecute(ResultType& out, Unit unit, const ResultType& candidates, InteractionType type);
 	};
 }

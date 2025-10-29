@@ -34,7 +34,7 @@ void Game::createBattleField(Real w, Real h)
 	_events.post(io::MapCreated{.width = (uint32_t) w, .height = (uint32_t) h});
 }
 
-Unit* Game::addUnit(UnitPtr&& unit)
+Unit Game::addUnit(std::unique_ptr<UnitObject>&& unit)
 {
 	if (!_battleField)
 	{
@@ -60,7 +60,7 @@ Unit* Game::addUnit(UnitPtr&& unit)
 	{
 		ptr->addComponent<SkipTurnTag>();
 	}
-	return ptr;
+	return Unit {ptr->id(), this, ptr};
 }
 
 void Game::init()
@@ -70,13 +70,8 @@ void Game::init()
 	});
 }
 
-bool Game::update()
+void Game::update()
 {
-	if (_units.size() < 2)
-	{
-		return false;
-	}
-
 	// Remove pending deletions before tick
 	if (!_toRemove.empty())
 	{
@@ -96,20 +91,15 @@ bool Game::update()
 	}
 
 	// Update over stable view; addUnit may append to _tickUnits for same-frame activation
-	bool wasAnyActions = false;
 	for (size_t i = 0; i < _tickUnits.size(); ++i)
 	{
 		if (_tickUnits[i]->hasComponent<SkipTurnTag>())
 		{
-			wasAnyActions = true;
 			_tickUnits[i]->remove<SkipTurnTag>();
 			continue;
 		}
 
-		if (_tickUnits[i]->update())
-		{
-			wasAnyActions = true;
-		}
+		_tickUnits[i]->update();
 	}
 
 	// Apply removals from this tick
@@ -125,23 +115,16 @@ bool Game::update()
 	_tickUnits.clear();
 	rebuildIndex();
 	++_frameIndex;
-
-	return wasAnyActions;
 }
 
-void Game::removeUnit(Id id)
+void Game::removeUnit(UnitId id)
 {
 	_toRemove.push_back(id);
 }
 
-Unit* Game::findUnit(Id id) const noexcept
+Unit Game::findUnit(UnitId id) const noexcept
 {
-	auto it = _idToIndex.find(id);
-	if (it == _idToIndex.end())
-	{
-		return nullptr;
-	}
-	return _units[it->second].get();
+	return Unit {id, this, findUnitRaw(id)};
 }
 
 void Game::rebuildIndex()
@@ -151,6 +134,16 @@ void Game::rebuildIndex()
 	{
 		_idToIndex[_units[i]->id()] = i;
 	}
+}
+
+UnitObject* Game::findUnitRaw(UnitId id) const noexcept
+{
+	auto it = _idToIndex.find(id);
+	if (it == _idToIndex.end())
+	{
+		return nullptr;
+	}
+	return _units[it->second].get();
 }
 
 static auto& registrators()

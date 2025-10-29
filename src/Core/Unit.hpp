@@ -6,102 +6,62 @@
 
 #include <Core/Types.hpp>
 #include <Core/GameRule.hpp>
-#include <Core/Position.hpp>
-#include <Core/ComponentOwner.hpp>
-#include <Core/AttributeOwner.hpp>
-
-#include <any>
-#include <map>
-#include <memory>
-#include <vector>
-#include <typeindex>
 
 namespace sw
 {
-	class Unit : public ComponentOwner, public AttributeOwner
+	class Unit
 	{
+		UnitId _id = 0;
+		const Game* _game = nullptr;
+		mutable UnitObject* _object = nullptr;
 	public:
-		Unit(Unit&&) = default;
-		explicit Unit (Id id, std::string type, Position position);
+		Unit(UnitObject&);
+		Unit(UnitObject*);
+		Unit(std::nullptr_t){};
+		Unit() = default;
+		Unit(UnitId id, const Game* game = nullptr, UnitObject* object = nullptr);
 
-		virtual ~Unit();
+		[[nodiscard]] operator bool() const noexcept;
+		[[nodiscard]] bool isValid() const noexcept;
 
-		Position position() const
-		{
-			return _position;
-		}
+		UnitObject* get() noexcept;
+		const UnitObject* get() const noexcept;
+		UnitObject& operator*() noexcept {return *get();}
+		const UnitObject& operator*() const noexcept {return *get();}
 
-		virtual void setPosition(Position value);
+		const UnitObject* operator->() const noexcept {return get();}
+		UnitObject* operator->() noexcept {return get();}
 
-		template <typename TAbility, typename... ARGS>
-		void addAbility(ARGS&&... args)
-		{
-			_abilities.emplace_back(std::make_unique<TAbility>(std::forward<ARGS>(args)...));
-			sortAbilities();
-		}
-
-		template <typename TCommand, typename... ARGS>
-		TCommand& addCommand(ARGS&&... args)
-		{
-			auto& ref = addCommand(std::make_unique<TCommand>(std::forward<ARGS>(args)...));
-			return static_cast<TCommand&>(ref);
-		}
-		[[nodiscard]] const std::string& type() const noexcept {return _type;}
-		[[nodiscard]] Id id() const noexcept {return _id;}
-		[[nodiscard]] bool wasInit() const noexcept {return _game && _battleField;}
-		[[nodiscard]] Game* game() const noexcept {return _game;}
-		[[nodiscard]] BattleField* battleField() const noexcept {return _battleField;}
-
-		[[nodiscard]] bool alive() const noexcept {return _alive;}
-		virtual void kill();
-	protected:
-		virtual bool update();
-		virtual void processCommands();
-		virtual bool processAbilities();
-
-		friend Game;
-		virtual void init(Game& game, BattleField& _battleField);
-
-		virtual ICommand& addCommand(std::unique_ptr<ICommand>&& command);
-		void sortAbilities();
-
-		const Id _id;
-		std::string _type;
-		Position _position;
-		std::vector<std::unique_ptr<IAbility> > _abilities;
-		std::unique_ptr<ICommand> _commandToExecute;
-		Game* _game = nullptr;
-		BattleField*  _battleField = nullptr;
-		bool _alive = false;
+		bool operator==(const Unit& rhs) const noexcept {return _id == rhs._id;}
 	};
-	using UnitPtr = std::unique_ptr<Unit>;
+
 
 	class DoesUnitBlockCeilRule : public GameRule
 	{
 	public:
 		using ResultType = bool;
-		virtual bool tryExecute(bool&, Unit& unit);
+		virtual bool tryExecute(bool&, Unit unit);
 	};
 
 	class UnitPlaceRule : public GameRule
 	{
 	public:
 		using ResultType = void;
-		virtual bool tryExecute(BattleField&, Unit& unit, Position position);
+		virtual bool tryExecute(BattleField&, Unit unit, Position position);
 	};
 
 	class UnitRemovedRule : public GameRule
 	{
 	public:
 		using ResultType = void;
-		virtual bool tryExecute(BattleField&, Unit& unit);
+		virtual bool tryExecute(BattleField&, Unit unit);
 	};
 
 	class UnitMovedRule : public GameRule
 	{
 	public:
 		using ResultType = void;
-		virtual bool tryExecute(BattleField&, Unit& unit, Position from, Position to);
+		virtual bool tryExecute(BattleField&, Unit unit, Position from, Position to);
 	};
 
 	class UnitsActInFrameOfCreation : public GameRule

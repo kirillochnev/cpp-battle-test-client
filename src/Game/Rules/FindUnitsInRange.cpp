@@ -8,7 +8,7 @@
 
 using namespace sw;
 
-bool FindUnitsInRange::tryExecute(FindUnitsInRange::ResultType& out, const Unit& interactor,
+bool FindUnitsInRange::tryExecute(FindUnitsInRange::ResultType& out, Unit interactor,
 								  Real minRange, Real maxRange, InteractionType interactionType)
 {
 	const auto& ruleBook = owner();

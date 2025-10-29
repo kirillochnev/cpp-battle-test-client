@@ -25,7 +25,7 @@ struct RegisterSwordsman : public AutoRegistrator {
 	    });
 
 		game.unitFactory().registerUnitKind("Swordsman", [](Game&, io::SpawnSwordsman event){
-			auto unit = std::make_unique<Unit>(event.unitId,"Swordsman", Position{(Real)event.x, (Real)event.y});
+			auto unit = std::make_unique<UnitObject>(event.unitId,"Swordsman", Position{(Real)event.x, (Real)event.y});
 			unit->setAttribute(AttributeType::kStr, event.strength);
 			unit->setAttribute(AttributeType::kHp, event.hp);
 			unit->addAbility<MeleeAttack>(AttributeType::kStr);

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 #include <Core/Position.hpp>
 
@@ -13,8 +14,8 @@ namespace sw
 	{
 
 	public:
-		using ResultType = std::vector<Unit*>;
-		virtual bool tryExecute(ResultType& out, const Unit& interactor, Real minRange, Real maxRange,
+		using ResultType = std::vector<Unit>;
+		virtual bool tryExecute(ResultType& out, const Unit interactor, Real minRange, Real maxRange,
 								InteractionType interactionType = InteractionType::kUnknown);
 
 		virtual bool tryExecute(ResultType& out, Position from, Real minRange, Real maxRange,

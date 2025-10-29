@@ -7,7 +7,7 @@
 
 using namespace sw;
 
-bool SelectTargetsRule::tryExecute(SelectTargetsRule::ResultType& out, Unit&,
+bool SelectTargetsRule::tryExecute(SelectTargetsRule::ResultType& out, Unit,
 								   const SelectTargetsRule::ResultType& candidates, InteractionType)
 {
 	if (!candidates.empty())

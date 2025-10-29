@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 
 #include <map>
@@ -14,7 +15,7 @@ namespace sw
 	{
 	public:
 		using ResultType = Real;
-		bool tryExecute(ResultType& out, const Unit& caster, const IAbility& ability, Real basePower,
+		bool tryExecute(ResultType& out, Unit caster, const IAbility& ability, Real basePower,
 						const std::map<AttributeType, Real>& scales, InteractionType type = InteractionType::kUnknown);
 	};
 }

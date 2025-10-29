@@ -3,17 +3,18 @@
 //
 
 #include "EvaluatePower.hpp"
-#include <Core/Unit.hpp>
+
+#include <Core/UnitObject.hpp>
 
 using namespace sw;
 
-bool EvaluatePower::tryExecute(EvaluatePower::ResultType& out, const Unit& caster, const IAbility&,
+bool EvaluatePower::tryExecute(EvaluatePower::ResultType& out, Unit caster, const IAbility&,
 							   Real basePower, const std::map<AttributeType, Real>& scales, InteractionType)
 {
 	out = basePower;
 	for (auto [attribute, scale] : scales)
 	{
-		out += caster.getAttribute(attribute) * scale;
+		out += caster->getAttribute(attribute) * scale;
 	}
 	return true;
 }

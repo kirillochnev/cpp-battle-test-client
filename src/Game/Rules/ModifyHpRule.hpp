@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 
 namespace sw
@@ -13,6 +14,6 @@ namespace sw
     {
     public:
         using ResultType = void;
-        virtual bool tryExecute(Unit& unit, Real deltaHp);
+        virtual bool tryExecute(Unit unit, Real deltaHp);
     };
 }

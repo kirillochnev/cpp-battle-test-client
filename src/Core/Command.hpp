@@ -13,15 +13,15 @@ namespace sw
 			return _inProgress;
 		}
 
-		void start(Unit& owner);
-		void update(Unit& owner);
-		void terminate(Unit& owner);
+		void start(UnitObject& owner);
+		void update(UnitObject& owner);
+		void terminate(UnitObject& owner);
 
 	protected:
 		bool _inProgress = false;
-		virtual void onStart(Unit& owner) = 0;
-		virtual void onFinished(Unit& owner) = 0;
-		virtual void onUpdate(Unit& owner) = 0;
-		virtual void onTerminate(Unit& owner) = 0;
+		virtual void onStart(UnitObject& owner) = 0;
+		virtual void onFinished(UnitObject& owner) = 0;
+		virtual void onUpdate(UnitObject& owner) = 0;
+		virtual void onTerminate(UnitObject& owner) = 0;
 	};
 }

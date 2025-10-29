@@ -15,19 +15,20 @@
 using namespace sw;
 
 
-bool AttackAbility::applyAbility(Unit& self, std::vector<Unit*>&& targets, Real power)
+bool AttackAbility::applyAbility(Unit self, std::vector<Unit>&& targets, Real power)
 {
-	if (targets.empty())
+	if (!self || targets.empty())
 	{
 		return false;
 	}
+	auto& game = *self->game();
 	for (auto target : targets)
 	{
-		self.game()->eventSystem().post(io::UnitAttacked {
-			.attackerUnitId = self.id(), .targetUnitId = target->id(), .damage = (uint32_t)power,
+		game.eventSystem().post(io::UnitAttacked {
+			.attackerUnitId = self->id(), .targetUnitId = target->id(), .damage = (uint32_t)power,
 			.targetHp = (uint32_t)target->getAttribute(AttributeType::kHp) - power
 		});
-		self.game()->ruleBook().apply<ApplyDamageRule>(&self, *target, power);
+		game.ruleBook().apply<ApplyDamageRule>(self, target, power);
 	}
 	return true;
 }

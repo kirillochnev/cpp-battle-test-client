@@ -8,21 +8,23 @@
 
 using namespace sw;
 
-bool ModifyHpRule::tryExecute(Unit& unit, Real deltaHp)
+bool ModifyHpRule::tryExecute(Unit unit, Real deltaHp)
 {
-    const Real oldHp = unit.getAttribute(AttributeType::kHp);
-    Real newHp = oldHp + deltaHp;
-    if (newHp < 0)
+	if (unit)
 	{
-		newHp = 0;
-	}
+		const Real oldHp = unit->getAttribute(AttributeType::kHp);
+		Real newHp = oldHp + deltaHp;
+		if (newHp < 0)
+		{
+			newHp = 0;
+		}
 
-    unit.setAttribute(AttributeType::kHp, newHp);
-	if (newHp == 0 && unit.alive())
-	{
-		// schedule death next tick and log
-		unit.kill();
+		unit->setAttribute(AttributeType::kHp, newHp);
+		if (newHp == 0 && unit->alive())
+		{
+			// schedule death next tick and log
+			unit->kill();
+		}
 	}
-
     return true;
 }

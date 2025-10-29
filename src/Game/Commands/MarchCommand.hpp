@@ -15,9 +15,9 @@ namespace sw
 	public:
 		MarchCommand(Real x, Real y);
 	protected:
-		void onStart(Unit& owner) override;
-		void onFinished(Unit& owner) override;
-		void onUpdate(Unit& owner) override;
-		void onTerminate(Unit& owner) override;
+		void onStart(UnitObject& owner) override;
+		void onFinished(UnitObject& owner) override;
+		void onUpdate(UnitObject& owner) override;
+		void onTerminate(UnitObject& owner) override;
 	};
 }

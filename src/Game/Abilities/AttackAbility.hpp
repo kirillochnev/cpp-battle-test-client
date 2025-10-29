@@ -15,7 +15,7 @@ namespace sw
 	{
 	protected:
 
-		bool applyAbility(Unit& self, std::vector<Unit*>&& targets, Real power) override;
+		bool applyAbility(Unit self, std::vector<Unit>&& targets, Real power) override;
 	public:
 		using InteractAbility::InteractAbility;
 	};

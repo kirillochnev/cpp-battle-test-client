@@ -10,11 +10,12 @@
 namespace sw
 {
 	using Real = int32_t;
-	using Id = uint32_t;
+	using UnitId = uint32_t;
 
 
 	class Game;
 	class Unit;
+	class UnitObject;
 	class RuleBook;
 	class ICommand;
 	class IAbility;

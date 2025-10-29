@@ -21,7 +21,7 @@ MarchCommand::MarchCommand(Real x, Real y):
 }
 
 
-void MarchCommand::onStart(Unit& owner)
+void MarchCommand::onStart(UnitObject& owner)
 {
 	owner.getOrCreateComponent<MoveTarget>() = MoveTarget{.x = _targetX, .y = _targetY};
 	io::MarchStarted event;
@@ -33,14 +33,14 @@ void MarchCommand::onStart(Unit& owner)
 	owner.game()->eventSystem().post(event);
 }
 
-void MarchCommand::onFinished(Unit& owner)
+void MarchCommand::onFinished(UnitObject& owner)
 {
 	owner.remove<MoveTarget>();
 	auto pos = owner.position();
 	owner.game()->eventSystem().post(io::MarchEnded{.unitId = owner.id(), .x = (uint32_t)pos.x, .y = (uint32_t)pos.y});
 }
 
-void MarchCommand::onUpdate(Unit& owner)
+void MarchCommand::onUpdate(UnitObject& owner)
 {
 	const auto pos = owner.position();
 	if (pos.x == _targetX && pos.y == _targetY || !owner.hasComponent<MoveTarget>())
@@ -49,7 +49,7 @@ void MarchCommand::onUpdate(Unit& owner)
 	}
 }
 
-void MarchCommand::onTerminate(Unit& owner)
+void MarchCommand::onTerminate(UnitObject& owner)
 {
 	onFinished(owner);
 }

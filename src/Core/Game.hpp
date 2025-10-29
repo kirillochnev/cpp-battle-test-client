@@ -6,6 +6,7 @@
 #include <Core/BattleField.hpp>
 #include <Core/EventSystem.hpp>
 #include <Core/GameRule.hpp>
+#include <Core/Unit.hpp>
 #include <Core/Types.hpp>
 #include <Core/UnitFactory.hpp>
 
@@ -17,24 +18,19 @@ namespace sw
 		EventSystem _events;
 		std::unique_ptr<BattleField> _battleField;
 		UnitFactory _unitFactory;
-		std::vector<Id> _toRemove;
+		std::vector<UnitId> _toRemove;
 		uint32_t _frameIndex = 0;
-		std::vector<UnitPtr > _units;
-		std::unordered_map<Id, size_t> _idToIndex;
+		std::vector<std::unique_ptr<UnitObject> > _units;
+		std::unordered_map<UnitId, size_t> _idToIndex;
 		bool _tickInProgress = false;
-		std::vector<Unit*> _tickUnits; // stable indexable view for current tick
+		std::vector<UnitObject*> _tickUnits; // stable indexable view for current tick
 		io::CommandParser _parser;
 	public:
 		Game();
 		~Game();
 
 		void init();
-		bool update();
-
-		// Index-based access during the current tick
-		size_t tickUnitCount() const noexcept { return _tickInProgress ? _tickUnits.size() : _units.size(); }
-		Unit* tickUnitAt(size_t index) const noexcept { return _tickInProgress ? _tickUnits[index] : _units[index].get(); }
-
+		void update();
 
 		uint32_t frameIndex() const noexcept {return _frameIndex;}
 
@@ -50,18 +46,27 @@ namespace sw
 		UnitFactory& unitFactory() noexcept {return _unitFactory;}
 		const UnitFactory& unitFactory() const noexcept {return _unitFactory;}
 
-		const std::vector<UnitPtr >& units() const noexcept {return _units;}
+		const auto& units() const noexcept {return _units;}
 
 		void createBattleField(Real w, Real h);
 
-		Unit* addUnit(UnitPtr&& unit);
+		Unit addUnit(std::unique_ptr<UnitObject>&& unit);
 
-		Unit* findUnit(Id id) const noexcept;
-		void removeUnit(Id id);
+		Unit findUnit(UnitId id) const noexcept;
+		void removeUnit(UnitId id);
 
 		io::CommandParser& parser() noexcept {return _parser;}
 		const io::CommandParser& parser() const noexcept {return _parser;}
 private:
+
+		// Index-based access during the current tick
+		size_t tickUnitCount() const noexcept { return _tickInProgress ? _tickUnits.size() : _units.size(); }
+
+		UnitObject* tickUnitAt(size_t index) const noexcept { return _tickInProgress ? _tickUnits[index] : _units[index].get(); }
+
+
+		UnitObject* findUnitRaw(UnitId id) const noexcept;
+		friend Unit;
 		void rebuildIndex();
 
 	};

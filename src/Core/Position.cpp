@@ -3,7 +3,8 @@
 //
 
 #include "Position.hpp"
-#include "Unit.hpp"
+
+#include "UnitObject.hpp"
 
 using namespace sw;
 
@@ -20,12 +21,12 @@ bool GetDistance::tryExecute(GetDistance::ResultType& out, Position a, Position 
 	return true;
 }
 
-bool GetDistance::tryExecute(GetDistance::ResultType& out, const Unit& a,const  Unit& b, InteractionType)
+bool GetDistance::tryExecute(GetDistance::ResultType& out, Unit a, Unit b, InteractionType)
 {
-	return tryExecute(out, a, b.position());
+	return tryExecute(out, a, b->position());
 }
 
-bool GetDistance::tryExecute(GetDistance::ResultType& out, const Unit& a, Position b, InteractionType interactionType)
+bool GetDistance::tryExecute(GetDistance::ResultType& out, Unit a, Position b, InteractionType interactionType)
 {
-	return tryExecute(out, a.position(), b);
+	return tryExecute(out, a->position(), b);
 }

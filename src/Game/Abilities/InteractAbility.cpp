@@ -23,10 +23,10 @@ InteractAbility::InteractAbility(InteractionType type, Real minRange, Real maxRa
 
 }
 
-bool InteractAbility::execute(Unit& self)
+bool InteractAbility::execute(UnitObject& self)
 {
-	std::vector<Unit*> candidates;
-	std::vector<Unit*> targets;
+	std::vector<Unit> candidates;
+	std::vector<Unit> targets;
 	Real power = 0;
 	return
 		findCandidates(self, candidates) &&
@@ -36,29 +36,29 @@ bool InteractAbility::execute(Unit& self)
 		applyAbility(self, std::move(targets), power);
 }
 
-bool InteractAbility::findCandidates(Unit& self, std::vector<Unit*>& out)
+bool InteractAbility::findCandidates(Unit self, std::vector<Unit>& out)
 {
-	out = self.game()->ruleBook().apply<FindUnitsInRange>(self, _minRange, _maxRange, _type);
+	out = self->game()->ruleBook().apply<FindUnitsInRange>(self, _minRange, _maxRange, _type);
 	return !out.empty();
 }
 
-bool InteractAbility::filterCandidates(Unit& self, std::vector<Unit*>& candidates)
+bool InteractAbility::filterCandidates(Unit self, std::vector<Unit>& candidates)
 {
 	erase_if(candidates, [&](auto unit){
 				 // FindUnitsInRange override may not check this
-				 return !self.game()->ruleBook().apply<CanInteract>(self, *unit, _type);
+				 return !self->game()->ruleBook().apply<CanInteract>(self, unit, _type);
 			 });
 	return !candidates.empty();
 }
 
-bool InteractAbility::selectTargets(Unit& self, std::vector<Unit*>&& candidates, std::vector<Unit*>& targets)
+bool InteractAbility::selectTargets(Unit self, std::vector<Unit>&& candidates, std::vector<Unit>& targets)
 {
-	targets = self.game()->ruleBook().apply<SelectTargetsRule>(self, candidates, _type);
+	targets = self->game()->ruleBook().apply<SelectTargetsRule>(self, candidates, _type);
 	return !targets.empty();
 }
 
-bool InteractAbility::evaluatePower(Unit& self, const std::vector<Unit*>& targets, Real& power)
+bool InteractAbility::evaluatePower(Unit self, const std::vector<Unit>& targets, Real& power)
 {
-	power = self.game()->ruleBook().apply<EvaluatePower>(self, *this, _basePower, _scales, _type);
+	power = self->game()->ruleBook().apply<EvaluatePower>(self, *this, _basePower, _scales, _type);
 	return true;
 }

@@ -38,7 +38,7 @@ void UnitFactory::onError(const std::string& unitKind, const std::any& data, con
 	throw std::runtime_error("Can not allocate unit kind: [" + unitKind + "], reason: " + std::string(reason));
 }
 
-Unit* UnitFactory::allocateUnit(const std::string& kind, const std::any& data)
+Unit UnitFactory::allocateUnit(const std::string& kind, const std::any& data)
 {
 	auto it = _allocators.find(kind);
 	if (it == _allocators.end())
@@ -46,7 +46,7 @@ Unit* UnitFactory::allocateUnit(const std::string& kind, const std::any& data)
 		onError(kind, data, "Can not find allocator");
 		return nullptr;
 	}
-	UnitPtr unit = it->second(_game, data);
+	auto unit = it->second(_game, data);
 	if (unit == nullptr)
 	{
 		onError(kind, data, "Factory returned nullptr");

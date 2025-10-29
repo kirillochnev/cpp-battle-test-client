@@ -21,13 +21,14 @@ namespace sw
 	public:
 		InteractAbility(InteractionType type, Real minRange, Real maxRange,
 						Real power, std::map<AttributeType, Real>&& scales);
-		bool execute(Unit& unit) override;
+		bool execute(UnitObject& self) override;
+
 	protected:
-		virtual bool findCandidates(Unit& self, std::vector<Unit*>& out);
-		virtual bool filterCandidates(Unit& self, std::vector<Unit*>& candidates);
-		virtual bool selectTargets(Unit& self, std::vector<Unit*>&& candidates, std::vector<Unit*>& targets);
-		virtual bool evaluatePower(Unit& self, const std::vector<Unit*>& targets, Real & power);
-		virtual bool applyAbility(Unit& self, std::vector<Unit*>&& targets, Real power) = 0;
+		virtual bool findCandidates(Unit self, std::vector<Unit>& out);
+		virtual bool filterCandidates(Unit self, std::vector<Unit>& candidates);
+		virtual bool selectTargets(Unit self, std::vector<Unit>&& candidates, std::vector<Unit>& targets);
+		virtual bool evaluatePower(Unit self, const std::vector<Unit>& targets, Real & power);
+		virtual bool applyAbility(Unit self, std::vector<Unit>&& targets, Real power) = 0;
 	};
 
 }

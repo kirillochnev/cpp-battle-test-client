@@ -10,7 +10,7 @@
 
 using namespace sw;
 
-bool ApplyDamageRule::tryExecute(Unit*, Unit& target, Real damage)
+bool ApplyDamageRule::tryExecute(Unit, Unit target, Real damage)
 {
     if (damage <= 0)
 	{

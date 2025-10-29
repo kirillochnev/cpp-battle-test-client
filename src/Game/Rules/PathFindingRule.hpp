@@ -13,7 +13,8 @@ namespace sw
 	{
 	public:
 		using ResultType = std::vector<Position>;
-		virtual bool tryExecute(ResultType& path, Game&, Position from, Position to, bool ignoreCollision, const Unit* optionalUnit);
+		virtual bool tryExecute(ResultType& path, Game&, Position from, Position to,
+								bool ignoreCollision, Unit optionalUnit);
 	};
 
 }

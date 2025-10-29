@@ -11,6 +11,6 @@ namespace sw
 	class MoveAbility : public IAbility
 	{
 	public:
-		bool execute(Unit& unit) override;
+		bool execute(UnitObject& self) override;
 	};
 }

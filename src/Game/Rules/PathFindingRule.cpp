@@ -6,8 +6,10 @@
 #include <Core/Position.hpp>
 #include <Core/Game.hpp>
 
-bool sw::PathFindingRule::tryExecute(sw::PathFindingRule::ResultType& path, Game& game, sw::Position from, sw::Position to,
-									 bool ignoreCollision, const sw::Unit* optionalUnit)
+using namespace sw;
+
+bool PathFindingRule::tryExecute(PathFindingRule::ResultType& path, Game& game, Position from, Position to,
+								 bool ignoreCollision, Unit optionalUnit)
 {
 	path.clear();
 

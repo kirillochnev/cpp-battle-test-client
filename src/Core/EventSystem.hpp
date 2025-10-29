@@ -54,7 +54,7 @@ namespace sw
 
 		void post(std::any&& event);
 	private:
-		Id _nextId = 0;
+		UnitId _nextId = 0;
 		struct SubInfo
 		{
 			SubId id;

@@ -12,6 +12,17 @@ namespace sw
 	{
 	public:
 		[[nodiscard]] virtual int32_t priority() const noexcept {return 0;}
-		[[nodiscard]] virtual bool execute(Unit& ) = 0;
+		[[nodiscard]] virtual bool execute(UnitObject& self) = 0;
+	};
+
+	class IdleAbility : public IAbility
+	{
+		int32_t priority() const noexcept;
+		bool execute(UnitObject& self) override;
+	};
+	struct AbilityWasExecutedEvent
+	{
+		IAbility& ability;
+		UnitObject& unit;
 	};
 }

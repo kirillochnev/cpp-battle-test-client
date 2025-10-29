@@ -7,7 +7,7 @@
 
 using namespace sw;
 
-void sw::ICommand::update(Unit& owner)
+void sw::ICommand::update(UnitObject& owner)
 {
 	start(owner);
 
@@ -19,7 +19,7 @@ void sw::ICommand::update(Unit& owner)
 	}
 }
 
-void sw::ICommand::terminate(Unit& owner)
+void sw::ICommand::terminate(UnitObject& owner)
 {
 	if (isInProgress())
 	{
@@ -28,7 +28,7 @@ void sw::ICommand::terminate(Unit& owner)
 	}
 }
 
-void ICommand::start(Unit& owner)
+void ICommand::start(UnitObject& owner)
 {
 	if (!isInProgress())
 	{

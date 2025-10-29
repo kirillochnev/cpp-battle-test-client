@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/Unit.hpp>
 #include <Core/GameRule.hpp>
 
 namespace sw
@@ -22,8 +23,8 @@ namespace sw
 		public:
 			using ResultType = Real;
 			virtual bool tryExecute(ResultType& out, Position a, Position b);
-			virtual bool tryExecute(ResultType& out, const Unit& a, const Unit& b, InteractionType interactionType = InteractionType::kUnknown);
-			virtual bool tryExecute(ResultType& out, const Unit& a, Position b, InteractionType interactionType = InteractionType::kMovement);
+			virtual bool tryExecute(ResultType& out, Unit a, Unit b, InteractionType interactionType = InteractionType::kUnknown);
+			virtual bool tryExecute(ResultType& out, Unit a, Position b, InteractionType interactionType = InteractionType::kMovement);
 		};
 
 

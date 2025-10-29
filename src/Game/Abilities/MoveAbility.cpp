@@ -10,7 +10,7 @@
 using namespace sw;
 
 
-bool MoveAbility::execute(Unit& unit)
+bool MoveAbility::execute(UnitObject& unit)
 {
 	auto targetPos = unit.getComponent<MoveTarget>();
 	if (targetPos == nullptr)
@@ -19,7 +19,8 @@ bool MoveAbility::execute(Unit& unit)
 	}
     const auto& ruleBook = unit.game()->ruleBook();
     const bool ignoreCollision = !ruleBook.apply<DoesUnitBlockCeilRule>(unit);
-	auto path = ruleBook.apply<PathFindingRule>(*unit.game(), unit.position(), Position{targetPos->x, targetPos->y}, ignoreCollision, &unit);
+	auto path = ruleBook.apply<PathFindingRule>(*unit.game(), unit.position(),
+												Position{targetPos->x, targetPos->y}, ignoreCollision, unit);
 	if (path.size() < 2)
 	{
 		return false;

@@ -6,19 +6,19 @@
 
 #include <Core/Types.hpp>
 #include <Core/Unit.hpp>
+#include <Core/UnitObject.hpp>
 #include <Utils/function_traits.hpp>
-
 #include <any>
+#include <functional>
 #include <map>
 #include <string>
-#include <functional>
 
 namespace sw
 {
 	class UnitFactory : Uncopiable
 	{
 	public:
-		using UnitAllocator = std::function<UnitPtr (Game&, const std::any&)>;
+		using UnitAllocator = std::function<std::unique_ptr<UnitObject> (Game&, const std::any&)>;
 
 		explicit UnitFactory(Game& game);
 		~UnitFactory();
@@ -40,7 +40,7 @@ namespace sw
 			return true;
 		}
 
-		Unit* allocateUnit(const std::string& kind, const std::any& data);
+		Unit allocateUnit(const std::string& kind, const std::any& data);
 	private:
 		void onError(const std::string& unitKind, const std::any& data, const std::string_view& reason) const;
 

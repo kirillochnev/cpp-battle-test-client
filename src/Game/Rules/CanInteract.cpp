@@ -3,25 +3,32 @@
 //
 
 #include "CanInteract.hpp"
-#include <Core/Unit.hpp>
+
+#include <Core/UnitObject.hpp>
 
 using namespace sw;
 
-bool CanInteract::tryExecute(CanInteract::ResultType& out, const Unit& a, const Unit& b, InteractionType type)
+bool CanInteract::tryExecute(CanInteract::ResultType& out, Unit a, Unit b, InteractionType type)
 {
-	const auto targetAttack = type == InteractionType::kMeleeAttack || type == InteractionType::kRangeAttack;
-	out = true;
-	if (targetAttack && a.id() == b.id())
+	if (a && b)
 	{
-		// no self attack
+		const auto targetAttack = type == InteractionType::kMeleeAttack || type == InteractionType::kRangeAttack;
+		out = true;
+		if (targetAttack && a == b)
+		{
+			// no self attack
+			out = false;
+		}
+
+		if ((targetAttack || type == InteractionType::kAoeAttack) && !b->alive())
+		{
+			// rest in piece, not in pieces
+			out = false;
+		}
+	}
+	else
+	{
 		out = false;
 	}
-
-	if ((targetAttack || type == InteractionType::kAoeAttack) && !b.alive())
-	{
-		// rest in piece, not in pieces
-		out = false;
-	}
-
 	return true;
 }
